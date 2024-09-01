@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import InputText from "./FormComponents/InputText";
 import ButtonMedium from "./FormComponents/ButtonMedium";
+import { Input, Ripple, initTWE } from "tw-elements";
 
 const RegisterForm = () => {
+    useEffect(() => {
+        initTWE({ Input, Ripple });
+    }, []);
+
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
 
@@ -61,7 +66,7 @@ const RegisterForm = () => {
             <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                        Create an account
+                        Register your account
                     </h1>
                     <form
                         className="space-y-4 md:space-y-6"
@@ -72,7 +77,7 @@ const RegisterForm = () => {
                                 value={email}
                                 onChange={setEmail}
                                 type={"email"}
-                                placeholder={"name@company.com"}
+                                placeholder={"email"}
                                 labelName={"Your email"}
                                 error={errors.email}
                             />
@@ -82,7 +87,7 @@ const RegisterForm = () => {
                                 value={name}
                                 onChange={setName}
                                 type={"text"}
-                                placeholder={"Alexander"}
+                                placeholder={"name"}
                                 error={errors.name}
                                 labelName={"Name"}
                             />
@@ -92,7 +97,7 @@ const RegisterForm = () => {
                                 value={password}
                                 onChange={setPassword}
                                 type={"password"}
-                                placeholder={"••••••••"}
+                                placeholder={"•••••"}
                                 error={errors.password}
                                 labelName={"Password"}
                             />
@@ -107,10 +112,7 @@ const RegisterForm = () => {
                                 labelName={"Confirm Password"}
                             />
                         </div>
-                        <ButtonMedium
-                            type={"submit"}
-                            text={"Create an account"}
-                        />
+                        <ButtonMedium type={"submit"} text={"Register"} />
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                             Already have an account?{" "}
                             <Link
