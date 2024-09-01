@@ -76,10 +76,10 @@ const RegisterForm = () => {
                             <InputText
                                 value={email}
                                 onChange={setEmail}
-                                type={"email"}
+                                type={"text"}
                                 placeholder={"email"}
-                                labelName={"Your email"}
                                 error={errors.email}
+                                labelName={"Your email"}
                             />
                         </div>
                         <div>

@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import BookPage from "./pages/BookPage";
+import RegisterSuccessPage from "./pages/RegisterSuccessPage";
 
 const router = createBrowserRouter([
     {
@@ -23,14 +24,18 @@ const router = createBrowserRouter([
                 path: "register",
                 element: <RegisterPage />,
             },
+            {
+                path: "register/success",
+                element: <RegisterSuccessPage />,
+            },
         ],
     },
     {
         path: "/books",
         element: (
-            <ProtectedRoute>
-                <BookPage />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            <BookPage />
+            // </ProtectedRoute>
         ),
     },
 ]);
