@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 const BookPage = () => {
     const [books, setBooks] = useState([]);
     const [borrowedBooks, setBorrowedBooks] = useState([]);
-    const [view, setView] = useState("available"); // 'available' or 'borrowed'
+    const [view, setView] = useState("available");
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
@@ -16,9 +16,7 @@ const BookPage = () => {
     const fetchBooks = async () => {
         try {
             const availableBooks = await getAvailableBooks();
-            console.log("Available books:", availableBooks); // Log the available books
             setBooks(availableBooks);
-            // console.log("one book", books[0].availability);
         } catch (error) {
             console.error("Failed to fetch available books:", error);
         }
@@ -27,7 +25,6 @@ const BookPage = () => {
     const fetchBorrowedBooks = async () => {
         try {
             const userBorrowedBooks = await getBorrowedBooks();
-            console.log("Borrowed books:", userBorrowedBooks); // Log the borrowed books
             setBorrowedBooks(userBorrowedBooks);
         } catch (error) {
             console.error("Failed to fetch borrowed books:", error);
@@ -37,8 +34,8 @@ const BookPage = () => {
     const handleBorrow = async (bookId) => {
         try {
             await borrowBook(bookId);
-            await fetchBooks(); // Refresh the book list
-            await fetchBorrowedBooks(); // Refresh the borrowed books list
+            await fetchBooks();
+            await fetchBorrowedBooks();
         } catch (error) {
             console.error("Failed to borrow book:", error);
         }
@@ -47,8 +44,8 @@ const BookPage = () => {
     const handleReturn = async (bookId) => {
         try {
             await returnBook(bookId);
-            await fetchBooks(); // Refresh the book list
-            await fetchBorrowedBooks(); // Refresh the borrowed books list
+            await fetchBooks();
+            await fetchBorrowedBooks();
         } catch (error) {
             console.error("Failed to return book:", error);
         }
@@ -60,13 +57,12 @@ const BookPage = () => {
         if (query) {
             try {
                 const searchResults = await searchBooks(query);
-                console.log("Search results:", searchResults); // Log the search results
                 setBooks(searchResults);
             } catch (error) {
                 console.error("Failed to search books:", error);
             }
         } else {
-            fetchBooks(); // Reset to all available books if search query is empty
+            fetchBooks();
         }
     };
 
@@ -139,7 +135,7 @@ const BookPage = () => {
                                                 {book.author}
                                             </td>
                                             <td className="py-2 px-4 border">
-                                                {book.availability
+                                                {book.availabl
                                                     ? "Available"
                                                     : "Unavailable"}
                                             </td>
@@ -175,6 +171,9 @@ const BookPage = () => {
                                 <tr>
                                     <th className="py-2 px-4 border">Title</th>
                                     <th className="py-2 px-4 border">Author</th>
+                                    <th className="py-2 px-4 border">
+                                        Availability
+                                    </th>
                                     <th className="py-2 px-4 border">Action</th>
                                 </tr>
                             </thead>
@@ -182,20 +181,20 @@ const BookPage = () => {
                                 {Array.isArray(borrowedBooks) &&
                                 borrowedBooks.length > 0 ? (
                                     borrowedBooks.map((book) => (
-                                        <tr
-                                            key={book.book._id}
-                                            className="border-b"
-                                        >
+                                        <tr key={book._id} className="border-b">
                                             <td className="py-2 px-4 border">
-                                                {book.book.title}
+                                                {book.title}
                                             </td>
                                             <td className="py-2 px-4 border">
-                                                {book.book.author}
+                                                {book.author}
+                                            </td>
+                                            <td className="py-2 px-4 border">
+                                                Borrowed
                                             </td>
                                             <td className="py-2 px-4 border">
                                                 <button
                                                     onClick={() =>
-                                                        handleReturn(book.id)
+                                                        handleReturn(book._id)
                                                     }
                                                     className="bg-red-500 text-white py-1 px-2 rounded"
                                                 >
@@ -207,7 +206,7 @@ const BookPage = () => {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan="3"
+                                            colSpan="4"
                                             className="py-2 px-4 border text-center"
                                         >
                                             No borrowed books
@@ -228,7 +227,6 @@ const getAvailableBooks = async () => {
     try {
         const userData = JSON.parse(sessionStorage.getItem("userData"));
         const token = userData?.accessToken;
-        console.log("Access token:", token); // Log the access token
 
         if (!token) {
             throw new Error("No access token found");
@@ -239,7 +237,6 @@ const getAvailableBooks = async () => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("API response available books:", response.data); // Log the API response
         return response.data.data;
     } catch (error) {
         console.error("Failed to fetch available books:", error);
@@ -261,7 +258,6 @@ const getBorrowedBooks = async () => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("API response borrowed books:", response.data); // Log the API response
         return response.data.data;
     } catch (error) {
         console.error("Failed to fetch borrowed books:", error);
@@ -286,7 +282,6 @@ const searchBooks = async (query) => {
                 },
             }
         );
-        console.log("API response searchBooks:", response.data); // Log the API response
         return response.data.data;
     } catch (error) {
         console.error("Failed to search books:", error);
@@ -312,7 +307,6 @@ const borrowBook = async (bookId) => {
                 },
             }
         );
-        console.log("API response borrowBook:", response.data); // Log the API response
         return response.data.data;
     } catch (error) {
         console.error("Failed to borrow book:", error);
@@ -338,7 +332,6 @@ const returnBook = async (bookId) => {
                 },
             }
         );
-        console.log("API response returnBook:", response.data); // Log the API response
         return response.data.data;
     } catch (error) {
         console.error("Failed to return book:", error);
