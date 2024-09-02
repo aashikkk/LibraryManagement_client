@@ -195,7 +195,9 @@ const BookPage = () => {
                                             <td className="py-2 px-4 border">
                                                 <button
                                                     onClick={() =>
-                                                        handleReturn(book.id)
+                                                        handleReturn(
+                                                            book.book._id
+                                                        )
                                                     }
                                                     className="bg-red-500 text-white py-1 px-2 rounded"
                                                 >
