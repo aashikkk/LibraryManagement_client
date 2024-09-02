@@ -23,7 +23,21 @@ function NavBar() {
 
     const handleLoggedOut = async () => {
         try {
-            const response = await axios.post("/api/logout");
+            const userData = JSON.parse(sessionStorage.getItem("userData"));
+            const { accessToken, refreshToken } = userData;
+            console.log(userData);
+            const response = await axios.post(
+                "/api/v1/auth/logout",
+                {
+                    refreshToken,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
             if (response.status === 200) {
                 loggedOut();
                 navigate("/login");
