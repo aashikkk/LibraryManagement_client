@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../axios";
 import InputText from "./FormComponents/InputText";
 import ButtonMedium from "./FormComponents/ButtonMedium";
 import { Input, Ripple, initTWE } from "tw-elements";
@@ -58,7 +58,6 @@ const RegisterForm = () => {
             navigate("/register/success");
         } catch (error) {
             console.error(error.response.data);
-            // Handle error
         }
     };
     return (
@@ -115,12 +114,12 @@ const RegisterForm = () => {
                         <ButtonMedium type={"submit"} text={"Register"} />
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                             Already have an account?{" "}
-                            <Link
-                                to="/login"
-                                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                            <a
+                                href="/login"
+                                className="text-danger transition duration-150 ease-in-out hover:text-danger-600 focus:text-danger-600 active:text-danger-700"
                             >
-                                Login here
-                            </Link>
+                                Login
+                            </a>
                         </p>
                     </form>
                 </div>
