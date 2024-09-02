@@ -18,25 +18,28 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.defaults.withCredentials = true;
 
         try {
-            const response = await axios.post("/api/login", {
+            const response = await axios.post("/api/v1/auth/login", {
                 email,
                 password,
             });
-            const { name } = response.data; // Assuming the response contains the user category
-            console.log(response.data);
+            console.log("Response data:", response.data);
+
+            const { accessToken, refreshToken, user } = response.data.data;
 
             // Construct userData
             const userData = {
                 isAuthenticated: true,
-                name: name,
+                name: user.name,
+                accessToken,
+                refreshToken,
             };
 
             setError("");
             // Use login function from context
             loggedIn(userData);
+            navigate("/books");
         } catch (error) {
             console.error("Login failed:", error);
             setError("Invalid email or password. Please try again.");
@@ -64,7 +67,7 @@ const LoginPage = () => {
                                 <InputText
                                     value={email}
                                     onChange={setEmail}
-                                    type={"email"}
+                                    type={"text"}
                                     placeholder={"name@company.com"}
                                     labelName={"Email"}
                                 />

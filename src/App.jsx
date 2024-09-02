@@ -33,9 +33,9 @@ const router = createBrowserRouter([
     {
         path: "/books",
         element: (
-            // <ProtectedRoute>
-            <BookPage />
-            // </ProtectedRoute>
+            <ProtectedRoute>
+                <BookPage />
+            </ProtectedRoute>
         ),
     },
 ]);
@@ -45,26 +45,6 @@ const App = () => {
         <AuthProvider>
             <RouterProvider router={router} />
         </AuthProvider>
-
-        //v5
-        // <AuthProvider>
-        //     <Router>
-        //         <Routes>
-        //             <Route path="/" element={<HomePage />} />
-        //             <Route path="/login" element={<LoginPage />} />
-        //             <Route path="/register" element={<RegisterPage />} />
-        //             {/* Protected route, only accessible if user is authenticated */}
-        //             <Route
-        //                 path="/books"
-        //                 element={
-        //                     <ProtectedRoute>
-        //                         <BookPage />
-        //                     </ProtectedRoute>
-        //                 }
-        //             />
-        //         </Routes>
-        //     </Router>
-        // </AuthProvider>
     );
 };
 

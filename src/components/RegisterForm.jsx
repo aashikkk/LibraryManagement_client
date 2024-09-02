@@ -30,8 +30,8 @@ const RegisterForm = () => {
         }
         if (!password) {
             errors.password = "Password is required";
-        } else if (password.length < 8) {
-            errors.password = "Password must be at least 8 characters long";
+        } else if (password.length < 6) {
+            errors.password = "Password must be at least 6 characters long";
         }
         if (password != confirmPassword) {
             errors.password = "Password do not match";
@@ -48,7 +48,7 @@ const RegisterForm = () => {
         }
 
         try {
-            const response = await axios.post("/api/register", {
+            const response = await axios.post("/api/v1/auth/register", {
                 name,
                 email,
                 password,

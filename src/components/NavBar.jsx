@@ -47,26 +47,29 @@ function NavBar() {
                         </Link>
                         {user && user.isAuthenticated ? (
                             <>
-                                <NavItem link={"/book"} text={"Dashboard"} />
+                                <NavItem link={"/book"} />
                                 <NavItem
                                     onClick={handleLoggedOut}
+                                    className={"text-white px-3"}
                                     text={"Log Out"}
                                 />
                             </>
                         ) : (
-                            <NavItem
-                                onClick={loggedIn}
-                                className={"text-white px-3"}
-                                link={"/login"}
-                                text={"Login"}
-                            />
+                            <>
+                                <NavItem
+                                    onClick={loggedIn}
+                                    className={"text-white px-3"}
+                                    link={"/login"}
+                                    text={"Login"}
+                                />
+                                <NavItem
+                                    onClick={loggedIn}
+                                    className={"text-white px-3"}
+                                    link={"/register"}
+                                    text={"Register"}
+                                />
+                            </>
                         )}
-                        <NavItem
-                            onClick={loggedIn}
-                            className={"text-white px-3"}
-                            link={"/register"}
-                            text={"Register"}
-                        />
                     </div>
                 </div>
             </nav>

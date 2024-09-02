@@ -9,50 +9,67 @@ const BookPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
-        const fetchBooks = async () => {
-            const availableBooks = await searchBooks();
-            const userBorrowedBooks = await getBorrowedBooks();
-            setBooks(availableBooks);
-            setBorrowedBooks(userBorrowedBooks);
-        };
         fetchBooks();
+        fetchBorrowedBooks();
     }, []);
 
+    const fetchBooks = async () => {
+        try {
+            const availableBooks = await getAvailableBooks();
+            console.log("Available books:", availableBooks); // Log the available books
+            setBooks(Array.isArray(availableBooks) ? availableBooks : []);
+        } catch (error) {
+            console.error("Failed to fetch available books:", error);
+        }
+    };
+
+    const fetchBorrowedBooks = async () => {
+        try {
+            const userBorrowedBooks = await getBorrowedBooks();
+            console.log("Borrowed books:", userBorrowedBooks); // Log the borrowed books
+            setBorrowedBooks(
+                Array.isArray(userBorrowedBooks) ? userBorrowedBooks : []
+            );
+        } catch (error) {
+            console.error("Failed to fetch borrowed books:", error);
+        }
+    };
+
     const handleBorrow = async (bookId) => {
-        const success = await borrowBook(bookId);
-        if (success) {
-            const updatedBooks = books.map((book) =>
-                book.id === bookId ? { ...book, available: false } : book
-            );
-            setBooks(updatedBooks);
-            setBorrowedBooks([
-                ...borrowedBooks,
-                books.find((book) => book.id === bookId),
-            ]);
+        try {
+            await borrowBook(bookId);
+            await fetchBooks(); // Refresh the book list
+            await fetchBorrowedBooks(); // Refresh the borrowed books list
+        } catch (error) {
+            console.error("Failed to borrow book:", error);
         }
     };
 
-    const handleUnborrow = async (bookId) => {
-        const success = await unborrowBook(bookId);
-        if (success) {
-            const updatedBorrowedBooks = borrowedBooks.filter(
-                (book) => book.id !== bookId
-            );
-            setBorrowedBooks(updatedBorrowedBooks);
-            const updatedBooks = books.map((book) =>
-                book.id === bookId ? { ...book, available: true } : book
-            );
-            setBooks(updatedBooks);
+    const handleReturn = async (bookId) => {
+        try {
+            await returnBook(bookId);
+            await fetchBooks(); // Refresh the book list
+            await fetchBorrowedBooks(); // Refresh the borrowed books list
+        } catch (error) {
+            console.error("Failed to return book:", error);
         }
     };
 
-    const handleSearch = (event) => {
-        setSearchQuery(event.target.value);
+    const handleSearch = async (event) => {
+        const query = event.target.value;
+        setSearchQuery(query);
+        if (query) {
+            try {
+                const searchResults = await searchBooks(query);
+                console.log("Search results:", searchResults); // Log the search results
+                setBooks(Array.isArray(searchResults) ? searchResults : []);
+            } catch (error) {
+                console.error("Failed to search books:", error);
+            }
+        } else {
+            fetchBooks(); // Reset to all available books if search query is empty
+        }
     };
-
-    const filteredBooks = books.filter((book) =>
-        book.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
     return (
         <div>
@@ -113,38 +130,49 @@ const BookPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredBooks.map(
-                                    (book) =>
-                                        book.available && (
-                                            <tr
-                                                key={book.id}
-                                                className="border-b"
-                                            >
-                                                <td className="py-2 px-4 border">
-                                                    {book.title}
-                                                </td>
-                                                <td className="py-2 px-4 border">
-                                                    {book.author}
-                                                </td>
-                                                <td className="py-2 px-4 border">
-                                                    {book.available
-                                                        ? "Available"
-                                                        : "Unavailable"}
-                                                </td>
-                                                <td className="py-2 px-4 border">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleBorrow(
-                                                                book.id
-                                                            )
-                                                        }
-                                                        className="bg-green-500 text-white py-1 px-2 rounded"
-                                                    >
-                                                        Borrow
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        )
+                                {Array.isArray(books) && books.length > 0 ? (
+                                    books.map(
+                                        (book) =>
+                                            book.available && (
+                                                <tr
+                                                    key={book._id}
+                                                    className="border-b"
+                                                >
+                                                    <td className="py-2 px-4 border">
+                                                        {book.title}
+                                                    </td>
+                                                    <td className="py-2 px-4 border">
+                                                        {book.author}
+                                                    </td>
+                                                    <td className="py-2 px-4 border">
+                                                        {book.available
+                                                            ? "Available"
+                                                            : "Unavailable"}
+                                                    </td>
+                                                    <td className="py-2 px-4 border">
+                                                        <button
+                                                            onClick={() =>
+                                                                handleBorrow(
+                                                                    book.id
+                                                                )
+                                                            }
+                                                            className="bg-green-500 text-white py-1 px-2 rounded"
+                                                        >
+                                                            Borrow
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                    )
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan="4"
+                                            className="py-2 px-4 border text-center"
+                                        >
+                                            No books available
+                                        </td>
+                                    </tr>
                                 )}
                             </tbody>
                         </table>
@@ -160,26 +188,38 @@ const BookPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {borrowedBooks.map((book) => (
-                                    <tr key={book.id} className="border-b">
-                                        <td className="py-2 px-4 border">
-                                            {book.title}
-                                        </td>
-                                        <td className="py-2 px-4 border">
-                                            {book.author}
-                                        </td>
-                                        <td className="py-2 px-4 border">
-                                            <button
-                                                onClick={() =>
-                                                    handleUnborrow(book.id)
-                                                }
-                                                className="bg-red-500 text-white py-1 px-2 rounded"
-                                            >
-                                                Unborrow
-                                            </button>
+                                {Array.isArray(borrowedBooks) &&
+                                borrowedBooks.length > 0 ? (
+                                    borrowedBooks.map((book) => (
+                                        <tr key={book.id} className="border-b">
+                                            <td className="py-2 px-4 border">
+                                                {book.title}
+                                            </td>
+                                            <td className="py-2 px-4 border">
+                                                {book.author}
+                                            </td>
+                                            <td className="py-2 px-4 border">
+                                                <button
+                                                    onClick={() =>
+                                                        handleReturn(book.id)
+                                                    }
+                                                    className="bg-red-500 text-white py-1 px-2 rounded"
+                                                >
+                                                    Unborrow
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan="3"
+                                            className="py-2 px-4 border text-center"
+                                        >
+                                            No borrowed books
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     )}
@@ -190,26 +230,135 @@ const BookPage = () => {
 };
 
 // Mock functions to simulate backend operations
-const searchBooks = async () => {
-    return [
-        { id: 1, title: "Book 1", author: "Author 1", available: true },
-        { id: 2, title: "Book 2", author: "Author 2", available: false },
-        { id: 3, title: "Book 3", author: "Author 3", available: true },
-    ];
+const getAvailableBooks = async () => {
+    try {
+        const userDataString = sessionStorage.getItem("userData");
+        console.log("userDataString:", userDataString); // Log the raw string from sessionStorage
+
+        const userData = JSON.parse(userDataString);
+        console.log("Parsed userData:", userData); // Log the parsed userData object
+
+        const token = userData?.accessToken;
+        console.log("Access token:", token); // Log the access token
+
+        if (!token) {
+            throw new Error("No access token found");
+        }
+
+        const response = await axios.get("/api/v1/books", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        console.log("API response:", response.data); // Log the API response
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch available books:", error);
+        throw error;
+    }
 };
 
 const getBorrowedBooks = async () => {
-    return [{ id: 2, title: "Book 2", author: "Author 2" }];
+    try {
+        const userDataString = sessionStorage.getItem("userData");
+        const userData = JSON.parse(userDataString);
+        const token = userData?.accessToken;
+
+        if (!token) {
+            throw new Error("No access token found");
+        }
+
+        const response = await axios.get("/api/v1/books/borrowed", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        console.log("API response:", response.data); // Log the API response
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch borrowed books:", error);
+        throw error;
+    }
+};
+
+const searchBooks = async (query) => {
+    try {
+        const userDataString = sessionStorage.getItem("userData");
+        const userData = JSON.parse(userDataString);
+        const token = userData?.accessToken;
+
+        if (!token) {
+            throw new Error("No access token found");
+        }
+
+        const response = await axios.get(
+            `/api/v1/books/search?title=${query}&author=${query}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log("API response:", response.data); // Log the API response
+        return response.data;
+    } catch (error) {
+        console.error("Failed to search books:", error);
+        throw error;
+    }
 };
 
 const borrowBook = async (bookId) => {
-    // Replace with actual borrow logic
-    return true;
+    try {
+        const userDataString = sessionStorage.getItem("userData");
+        const userData = JSON.parse(userDataString);
+        const token = userData?.accessToken;
+
+        if (!token) {
+            throw new Error("No access token found");
+        }
+
+        const response = await axios.post(
+            "/api/v1/books/borrow",
+            { bookId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log("API response:", response.data); // Log the API response
+        return response.data;
+    } catch (error) {
+        console.error("Failed to borrow book:", error);
+        throw error;
+    }
 };
 
-const unborrowBook = async (bookId) => {
-    // Replace with actual unborrow logic
-    return true;
+const returnBook = async (bookId) => {
+    try {
+        const userDataString = sessionStorage.getItem("userData");
+        const userData = JSON.parse(userDataString);
+        const token = userData?.accessToken;
+
+        if (!token) {
+            throw new Error("No access token found");
+        }
+
+        const response = await axios.post(
+            "/api/v1/books/return",
+            { bookId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log("API response:", response.data); // Log the API response
+        return response.data;
+    } catch (error) {
+        console.error("Failed to return book:", error);
+        throw error;
+    }
 };
 
 export default BookPage;
