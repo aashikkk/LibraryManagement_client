@@ -55,12 +55,18 @@ const BookPage = () => {
     };
 
     const handleSearch = async (event) => {
-        const query = event.target.value;
+        const query = event.target.value.toLowerCase(); // Convert query to lowercase for case-insensitive search
         setSearchQuery(query);
+
         if (query) {
             try {
-                const searchResults = await searchBooks(query);
-                console.log("Search results:", searchResults); // Log the search results
+                const searchResults = books.filter((book) => {
+                    const titleMatch = book.title.toLowerCase().includes(query);
+                    const authorMatch = book.author
+                        .toLowerCase()
+                        .includes(query);
+                    return titleMatch || authorMatch;
+                });
                 setBooks(searchResults);
             } catch (error) {
                 console.error("Failed to search books:", error);
